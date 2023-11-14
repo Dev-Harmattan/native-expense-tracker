@@ -1,12 +1,15 @@
-import { useContext, useLayoutEffect } from 'react';
+import { useContext, useLayoutEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import IconButton from '../components/UI/IconButton';
 import { GlobalStyles } from '../constant/style';
 import { ExpensesContext } from '../store/expense-context';
 import ExpenseForm from '../components/ManageExpense/ExpenseForm';
 import { deleteExpense, storeExpense, updateExpense } from '../util/http';
+import ErrorOverlay from '../components/UI/ErrorOverlay';
 
 const ManageExpenses = ({ route, navigation }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
   const expenseCtx = useContext(ExpensesContext);
@@ -26,21 +29,37 @@ const ManageExpenses = ({ route, navigation }) => {
   };
 
   const deleteExpenseHandler = () => {
-    expenseCtx.deleteExpense(editedExpenseId);
-    deleteExpense(editedExpenseId)
-    navigation.goBack();
+    setIsSubmitting(true);
+    try {
+      expenseCtx.deleteExpense(editedExpenseId);
+      deleteExpense(editedExpenseId);
+      navigation.goBack();
+    } catch (error) {
+      setError("Oops! Couldn't delete expense");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const confirmHandler = async (expense) => {
-    if (isEditing) {
-      expenseCtx.updateExpense(editedExpenseId, expense);
-      updateExpense(editedExpenseId, expense);
-    } else {
-      const id = await storeExpense(expense);
-      expenseCtx.addExpense({ ...expense, id: id });
+    setIsSubmitting(true);
+    try {
+      if (isEditing) {
+        expenseCtx.updateExpense(editedExpenseId, expense);
+        updateExpense(editedExpenseId, expense);
+      } else {
+        const id = await storeExpense(expense);
+        expenseCtx.addExpense({ ...expense, id: id });
+      }
+      navigation.goBack();
+    } catch (error) {
+      setError("Oops! Couldn't Update or delete the expense");
+    } finally {
+      setIsSubmitting(false);
     }
-    navigation.goBack();
   };
+
+  if (error && !isSubmitting) return <ErrorOverlay />;
 
   return (
     <View style={styles.container}>
