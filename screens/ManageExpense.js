@@ -4,6 +4,7 @@ import IconButton from '../components/UI/IconButton';
 import { GlobalStyles } from '../constant/style';
 import { ExpensesContext } from '../store/expense-context';
 import ExpenseForm from '../components/ManageExpense/ExpenseForm';
+import { deleteExpense, storeExpense, updateExpense } from '../util/http';
 
 const ManageExpenses = ({ route, navigation }) => {
   const editedExpenseId = route.params?.expenseId;
@@ -26,14 +27,17 @@ const ManageExpenses = ({ route, navigation }) => {
 
   const deleteExpenseHandler = () => {
     expenseCtx.deleteExpense(editedExpenseId);
+    deleteExpense(editedExpenseId)
     navigation.goBack();
   };
 
-  const confirmHandler = (expense) => {
+  const confirmHandler = async (expense) => {
     if (isEditing) {
       expenseCtx.updateExpense(editedExpenseId, expense);
+      updateExpense(editedExpenseId, expense);
     } else {
-      expenseCtx.addExpense(expense);
+      const id = await storeExpense(expense);
+      expenseCtx.addExpense({ ...expense, id: id });
     }
     navigation.goBack();
   };

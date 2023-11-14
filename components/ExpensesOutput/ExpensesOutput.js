@@ -9,7 +9,6 @@ const ExpensesOutput = ({ expenses, expensesPeriod, fallbackText }) => {
   if (expenses.length > 0) {
     content = <ExpensesList expenses={expenses} />;
   }
-  console.log('expenses: ', expenses);
   return (
     <View style={styles.container}>
       <ExpensesSummary expenses={expenses} periodName={expensesPeriod} />
