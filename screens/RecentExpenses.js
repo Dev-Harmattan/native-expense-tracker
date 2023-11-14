@@ -6,12 +6,9 @@ import { getDateMinusDays } from '../util/date';
 
 const RecentExpenses = () => {
   const expensesCtx = useContext(ExpensesContext);
-  console.log(expensesCtx.expenses);
   const recentExpenses = expensesCtx.expenses.filter((expense) => {
     const today = new Date();
     const date7daysAgo = getDateMinusDays(today, 7);
-    console.log(expense.date > date7daysAgo);
-
     return expense.date >= date7daysAgo && expense.date <= today;
   });
   return (

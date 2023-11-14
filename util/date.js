@@ -1,9 +1,7 @@
 export const getFormattedDate = (date) => {
-  return `${date.getFullYear()}-${(date.getMonth() + 1)
-    .toString()
-    .padStart(2, 0)}-${date.getDay().toString().padStart(2, 0)}`;
+  return date.toISOString().slice(0, 10)
 };
 
 export const getDateMinusDays = (date, days) => {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDay() - 1);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - days);
 };

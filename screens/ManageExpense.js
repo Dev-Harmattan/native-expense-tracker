@@ -1,14 +1,18 @@
 import { useContext, useLayoutEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import IconButton from '../components/UI/IconButton';
-import Button from '../components/UI/Button';
 import { GlobalStyles } from '../constant/style';
 import { ExpensesContext } from '../store/expense-context';
+import ExpenseForm from '../components/ManageExpense/ExpenseForm';
 
 const ManageExpenses = ({ route, navigation }) => {
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
   const expenseCtx = useContext(ExpensesContext);
+
+  const currentExpense = expenseCtx.expenses.find(
+    (expense) => expense.id === editedExpenseId
+  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -25,20 +29,23 @@ const ManageExpenses = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  const confirmHandler = () => {
+  const confirmHandler = (expense) => {
+    if (isEditing) {
+      expenseCtx.updateExpense(editedExpenseId, expense);
+    } else {
+      expenseCtx.addExpense(expense);
+    }
     navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.buttons}>
-        <Button style={styles.button} mode="flat" onPress={handleCancel}>
-          Cancel
-        </Button>
-        <Button style={styles.button} onPress={confirmHandler}>
-          {isEditing ? 'Update' : 'Add'}
-        </Button>
-      </View>
+      <ExpenseForm
+        onCancel={handleCancel}
+        onSubmit={confirmHandler}
+        submitButtonLabel={isEditing ? 'Update' : 'Create'}
+        defaultValues={currentExpense}
+      />
       {isEditing && (
         <View style={styles.deleteContainer}>
           <IconButton
